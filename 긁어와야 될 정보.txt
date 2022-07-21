@@ -1,0 +1,9 @@
+리뷰수 span class_="item_t02" 
+조회수 span class_="item_t03"
+추천수 span class_="item_t04"
+
+제목 h2 class_="camp_tt"
+소개 span class_="camp_txt"
+주소 li class_="addr"
+
+옵션정보 div class_="camp_item_box"

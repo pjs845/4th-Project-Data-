@@ -2,14 +2,20 @@ from pymongo import mongo_client
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+import pymongo
+import webbrowser
+import folium
+from bs4 import BeautifulSoup
+import requests
+
 id = 1
 #몽고DB
 host = "localhost"
 port = 27017
 client = mongo_client.MongoClient(host, port)
 db = client["soobindb"]
-col = db["site"]
-
+col = db["site"]  
+col.drop()
 #페이지 크롤링
 url = "https://www.gocamping.or.kr/bsite/camp/info/list.do?pageUnit=10&searchKrwd=&listOrdrTrget=last_updusr_pnttm&pageIndex=1"
 response = requests.get(url)
@@ -79,4 +85,55 @@ for page in range(1, 3): #너무 많아서 2페이지만 테스트 하기용
     # camps_info.text.split("\\n")
     # print(html)
     # print(camp_info.text)
+
     
+question = input("캠핑장이름을 입력하세요(주소를 입력하고 싶으면 '주소'입력): ")
+if question == '주소':
+    question = input("주소를 입력해주세요: ")
+    where = {"지역이름":{"$regex":question}}
+else:
+    where = {"캠핑장이름":{"$regex":question}}
+print(question)
+
+docs = col.find(where)
+cnt = 0
+for x in docs:
+    cnt = cnt + 1
+
+put = docs
+print(cnt)
+location = list()
+for x in range(cnt):
+    url = "https://jusoga.com/search?q={}".format("충청북도 단양군 단양읍 기촌리")
+    ##########
+    response = requests.get(url)
+    source = response.text
+    soup = BeautifulSoup(source, "html.parser")
+    a = soup.select_one("body > div.container > table > tbody > tr > td:nth-child(1) > a")
+    list = a["href"]
+    base_url = list
+    response = requests.get(base_url)
+    source = response.text
+    # print(source)
+    soup = BeautifulSoup(source, "html.parser")
+    # 위도
+    x = soup.select_one("body > div:nth-child(2) > table > tbody > tr:nth-child(5) > td")
+    print("위도",x.text)
+    # 경도
+    y = soup.select_one("body > div:nth-child(2) > table > tbody > tr:nth-child(6) > td")
+    print("경도",y.text)
+    location.append([x.text, y.text])
+
+#지도 디폴트 셋팅
+Y = 37.5722440
+X = 126.9759352
+main_location = (Y, X)
+map_shic = folium.Map(location=main_location, zoom_start=8, title="map")
+print(location)
+#print(location)
+for x in range(len(location)):
+    folium.Marker(location[x], icon=folium.Icon(color='blue')).add_to(map_shic)
+map_shic.save("map.html")
+webbrowser.open("map.html") #지도 html로 열기
+
+col.drop()

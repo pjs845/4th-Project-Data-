@@ -6,6 +6,7 @@ from urllib import parse
 from urllib.request import Request
 from urllib.error import HTTPError
 import json
+import location as lo
 
 id = 1
 #몽고DB
@@ -13,16 +14,23 @@ host = "localhost"
 port = 27017
 client = mongo_client.MongoClient(host, port)
 db = client["soobindb"]
-col = db["site"]  
+col1 = db["site"]
+col2 = db["rate"]
+#lo.locationbar(col) #locationbar 함수
     
+
 question = input("캠핑장이름을 입력하세요(주소를 입력하고 싶으면 '주소'입력): ")
+
 if question == '주소':
     question = input("주소를 입력해주세요: ")
     where = {"지역이름":{"$regex":question}}
 else:
     where = {"캠핑장이름":{"$regex":question}}
 
-docs = col.find(where)
+
+
+docs = col1.find(where) #site db
+#docs = col2.find() #rate db
 
 #naver map api key
 client_id = 'k3y82rodr8';    # 본인이 할당받은 ID 입력
@@ -37,7 +45,7 @@ name = list()
 info = list()
 imglist = list()    
 for x in docs:
-    add = x["지역이름"]
+    add = x["장소"]
     add_urlenc = parse.quote(add)  #한글 인코딩
     url = api_url + add_urlenc
     request = Request(url)
@@ -78,10 +86,16 @@ main_location = (Y, X)
 map_shic = folium.Map(location=main_location, zoom_start=8, title="map")
 #print(location)
 #print(location)
+
 for x in range(len(location)):
     pop = folium.Popup(imglist[x]+'<br>'+str(name[x])+'<br>'+
                        "주소: "+info[x][0]+"<br>"+"전화번호: "+info[x][1], max_width=300)
     folium.Marker(location[x], popup=pop, icon=folium.Icon(color='blue')).add_to(map_shic)
+'''
+for x in range(len(location)):
+    pop = folium.Popup(x, max_width=300)
+    folium.Marker(location[x], popup=pop, icon=folium.Icon(color='blue')).add_to(map_shic)
+'''
 map_shic.save("map.html")
 webbrowser.open("map.html") #지도 html로 열기
 

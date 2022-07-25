@@ -1,57 +1,107 @@
-import numpy as np
+from matplotlib.font_manager import findfont
+from pymongo import mongo_client
+import matplotlib.pyplot as plt
 import pandas as pd
-from urllib.request import urlopen
-from urllib import parse
-from urllib.request import Request
-from urllib.error import HTTPError
-from bs4 import BeautifulSoup
-import json
-
-#naver map api key
-client_id = 'k3y82rodr8';    # 본인이 할당받은 ID 입력
-client_pw = '6STyg87wDH81UANRy4ameDXDRE0Vxie1w09HfYdU';    # 본인이 할당받은 Secret 입력
-
-api_url = 'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query='
+import numpy as np
 
 
-# 네이버 지도 API 이용해서 위경도 찾기
-geo_coordi = []     
-for x in range(0,1):
-    add = "경남 남해군 미조면 송정리 1379 외2"
-    add_urlenc = parse.quote(add)  
-    url = api_url + add_urlenc
-    request = Request(url)
-    request.add_header('X-NCP-APIGW-API-KEY-ID', client_id)
-    request.add_header('X-NCP-APIGW-API-KEY', client_pw)
-    try:
-        response = urlopen(request)
-    except HTTPError as e:
-        print('HTTP Error!')
-        latitude = None
-        longitude = None
-    else:
-        rescode = response.getcode()
-        if rescode == 200:
-            response_body = response.read().decode('utf-8')
-            response_body = json.loads(response_body)   # json
-            if response_body['addresses'] == [] :
-                print("'result' not exist!")
-                latitude = None
-                longitude = None
-            else:
-                latitude = response_body['addresses'][0]['y']
-                longitude = response_body['addresses'][0]['x']
-                print("Success!")
-        else:
-            print('Response error code : %d' % rescode)
-            latitude = None
-            longitude = None
+plt.rcParams['font.family'] ='Malgun Gothic' # 윈도우, 구글 콜랩
+plt.rcParams['axes.unicode_minus'] =False # 한글 폰트 사용시 마이너스 폰트 깨짐 해결
 
-    geo_coordi.append([latitude, longitude])
+id = 1
+#몽고DB
+host = "localhost"
+port = 27017
+client = mongo_client.MongoClient(host, port)
+db = client["soobindb"]
+col = db["site"]  
 
 
-np_geo_coordi = np.array(geo_coordi)
-pd_geo_coordi = pd.DataFrame({"도로명": "경남 남해군 미조면 송정리 1379 외2",
-                              "위도": np_geo_coordi[:, 0],
-                              "경도": np_geo_coordi[:, 1]})
-print(pd_geo_coordi)
+docs = col.find()
+cnt = int()
+locationnum = list()
+location = ["서울시", "부산시", "대구시", "인천시", "광주시", "대전시", "울산시", "세종시",
+            "경기도", "강원도", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도",
+            "경상남도", "제주도"]
+seoul = busan = daegu = incheon = gwangju = daejun = ulsan = sejong = int()
+gyeonggi = gangwon = chungbuk = chungnam = junrabuk = junranam = gyeongsangbuk = gyeongsangnam = jeju = int()
+for x in docs:
+    #print(x["캠핑장이름"])
+    loc = x["캠핑장이름"].split()
+    loc = loc[0][1:]
+    #print(loc)
+    if loc == "서울시":
+        seoul = seoul + 1
+    elif loc == "부산시":
+        busan = busan + 1
+    elif loc == "대구시":
+        daegu = daegu + 1
+    elif loc == "인천시":
+        incheon = incheon + 1
+    elif loc == "광주시":
+        gwangju = gwangju + 1
+    elif loc == "대전시":
+        daejun = daejun + 1
+    elif loc == "울산시":
+        ulsan = ulsan + 1
+    elif loc == "세종시":
+        sejong = sejong + 1
+    elif loc == "경기도":
+        gyeonggi = gyeonggi + 1
+    elif loc == "강원도":
+        gangwon = gangwon + 1
+    elif loc == "충청북도":
+        chungbuk = chungbuk + 1
+    elif loc == "충청남도":
+        chungnam = chungnam + 1
+    elif loc == "전라북도":
+        junrabuk = junrabuk + 1
+    elif loc == "전라남도":
+        junranam = junranam + 1
+    elif loc == "경상북도":
+        gyeongsangbuk = gyeongsangbuk + 1
+    elif loc == "경상남도":
+        gyeongsangnam = gyeongsangnam + 1
+    elif loc == "제주도":
+        jeju = jeju + 1
+locationnum.append(seoul)
+locationnum.append(busan)
+locationnum.append(daegu)
+locationnum.append(incheon)
+locationnum.append(gwangju)
+locationnum.append(daejun)
+locationnum.append(ulsan)
+locationnum.append(sejong)
+locationnum.append(gyeonggi)
+locationnum.append(gangwon)
+locationnum.append(chungbuk)
+locationnum.append(chungnam)
+locationnum.append(junrabuk)
+locationnum.append(junranam)
+locationnum.append(gyeongsangbuk)
+locationnum.append(gyeongsangnam)
+locationnum.append(jeju)
+df = pd.DataFrame(
+   dict(
+      names=location,
+      marks=locationnum
+   )
+)
+plt.figure(figsize=(14,4), facecolor= 'w')
+df_sorted = df.sort_values('marks')
+plt.rc('axes', facecolor = 'linen', edgecolor = 'darkgrey', linewidth = 0.5)
+plt.rc('ytick', color = 'dimgrey')
+w = 0.5
+bary = np.arange(len(location))
+print(bary)
+plt.bar('names','marks', w, data=df_sorted,color='peru',align='edge', edgecolor='chocolate')
+plt.grid(color = 'w')
+plt.xticks(bary+w/2, df_sorted['names'], color ='dimgrey')
+plt.ylim(0,800) 
+plt.title("[ CAMPGROUND | 지역별 캠핑장 수 ]",loc='right',color='dimgrey',fontsize =13)
+plt.show()
+
+
+
+
+

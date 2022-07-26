@@ -17,17 +17,9 @@ soup = BeautifulSoup(source, "html.parser")
 
 # 위도
 x = soup.select_one("body > div:nth-child(2) > table > tbody > tr:nth-child(5) > td")
-x = float(x)
-if x == float():
-    print("float 맞음")
-else:
-    print("float 아님")
-    x = soup.select_one("body > div:nth-child(2) > table > tbody > tr:nth-child(6) > td")
-    print("위도:", x.text)
-    y = soup.select_one("body > div:nth-child(2) > table > tbody > tr:nth-child(7) > td")
-    print("경도:",y.text)
+x = float(x.text)
 # 경도
-
 y = soup.select_one("body > div:nth-child(2) > table > tbody > tr:nth-child(6) > td")
-print("위도:", x.text)
-print("경도:",y.text)
+y = float(y.text)
+print("위도:", x)
+print("경도:", y)

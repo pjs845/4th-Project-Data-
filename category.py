@@ -2,6 +2,7 @@ from unicodedata import category
 from pymongo import mongo_client
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 plt.rcParams['font.family'] ='Malgun Gothic' # 윈도우, 구글 콜랩
 plt.rcParams['axes.unicode_minus'] =False # 한글 폰트 사용시 마이너스 폰트 깨짐 해결
@@ -24,7 +25,7 @@ for x in docs:
     #print(x["캠핑장 유형"])
     cate = x["캠핑장 유형"].split(",")
     #cate = cate[0][0:]
-    print(cate)
+    #print(cate)
     for y in cate:
         if y == "일반야영장":
             nomal = nomal + 1
@@ -40,15 +41,22 @@ kind_num.append(car)
 kind_num.append(gram)
 kind_num.append(caravan)
 
-df = pd.DataFrame(
-   dict(
-      names=kind,
-      marks=kind_num
-   )
-)
-
-plt.figure(figsize=(16,9))
-df_sorted = df.sort_values('marks')
-plt.bar('names', 'marks', data=df_sorted)
-plt.title("캠핑장 유형", fontsize=25)
+ratio = np.array(kind_num)
+labels = np.array(kind)
+explode = [0.05, 0, 0.07, 0]
+wedgeprops={'width': 0.7, 'edgecolor': 'w', 'linewidth': 3}
+colors = ['#5bc0c9','#77d1ac','#cfacfa','#f7d797']
+textpromps = dict(size=13, fontweight='bold', color='#42403e')
+title_font = {
+    'fontsize': 17,
+    'fontweight': 'bold'
+}
+plt.title('<<Camping Category>>', fontdict=title_font, loc = 'left', pad=20)
+plt.pie(kind_num, labels=kind, explode=explode, colors=colors, counterclock=False, startangle=90, wedgeprops=wedgeprops, autopct = '%.1f%%', pctdistance = 0.7, textprops = textpromps)
+plt.legend(loc='upper right', fontsize=10)
 plt.show()
+
+
+
+
+

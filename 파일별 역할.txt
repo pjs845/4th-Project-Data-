@@ -1,7 +1,10 @@
+animal.py -- 반려동물 동반/미동반 시각화
 webCrawling.py -- 고캠핑 전체 캠핑장 크롤링
 Camping.py  -- 데이터베이스 주소검색 + 지도로 시각화
 Camp_Panel1.py -- 고캠핑 캠핑장 상세정보1 크롤링
 Camp_Panel2.py -- 고캠핑 캠핑장 상세정보2 크롤링
+category.py -- 카테고리 시각화
 search.py -- jusoga 위도 경도 데이터 크롤링
-location.py -- 지역별 캠핑장 갯수 도표화
+location.py -- 지역별 캠핑장 갯수 시각화
 rate.py -- 카카오맵 크롤링
+ratebar.py -- 리뷰, 평점 시각화

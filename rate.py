@@ -26,7 +26,7 @@ driver.find_element(By.CSS_SELECTOR, "#dimmedLayer").click()
 
 for x in range(0, 10):
     driver.find_element(By.CSS_SELECTOR, "#view\.map > div.MapControlView > div.zoom_control.fold > div > button:nth-child(3)").click()
-    time.sleep(1)
+    time.sleep(0.5)
 driver.find_element(By.CSS_SELECTOR, "#search\.keyword\.bounds").click()
 time.sleep(1)
 
@@ -34,9 +34,11 @@ el_search = driver.find_element("name", "q")
 el_search.send_keys("캠핑장")
 
 el_search.send_keys(Keys.ENTER)
-time.sleep(1)
+time.sleep(0.1)
 driver.find_element(By.CSS_SELECTOR, "#info\.search\.place\.more").click()
-time.sleep(1)
+time.sleep(0.1)
+driver.find_element(By.CSS_SELECTOR, "#info\.search\.page\.no1").click()
+time.sleep(0.1)
 
 html = driver.page_source
 soup = BeautifulSoup(html, "html.parser")

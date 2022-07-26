@@ -6,28 +6,24 @@ from urllib import parse
 from urllib.request import Request
 from urllib.error import HTTPError
 import json
-import location as lo
 
 id = 1
 #몽고DB
-host = "localhost"
+host = "192.168.0.66"
 port = 27017
 client = mongo_client.MongoClient(host, port)
-db = client["soobindb"]
-col1 = db["site"]
-col2 = db["rate"]
-#lo.locationbar(col) #locationbar 함수
+db = client["CampMain"]
+col1 = db["CampInfo"]
+#col1 = db["site"]
+#col2 = db["rate"]
     
-
+type = input("")
 question = input("캠핑장이름을 입력하세요(주소를 입력하고 싶으면 '주소'입력): ")
-
 if question == '주소':
     question = input("주소를 입력해주세요: ")
     where = {"지역이름":{"$regex":question}}
 else:
     where = {"캠핑장이름":{"$regex":question}}
-
-
 
 docs = col1.find(where) #site db
 #docs = col2.find() #rate db
@@ -43,9 +39,9 @@ api_url = 'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query='
 location = list()
 name = list()
 info = list()
-imglist = list()    
+imglist = list()
 for x in docs:
-    add = x["장소"]
+    add = x["지역이름"]
     add_urlenc = parse.quote(add)  #한글 인코딩
     url = api_url + add_urlenc
     request = Request(url)
